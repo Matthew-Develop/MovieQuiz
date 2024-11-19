@@ -1,8 +1,4 @@
 import UIKit
-import Foundation
-
-
-
 
 final class MovieQuizViewController: UIViewController {
     
@@ -10,9 +6,12 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
+    @IBOutlet private var yesButton: UIButton!
+    @IBOutlet private var noButton: UIButton!
+    
     private struct QuizQuestion {
         let image: String
-        let text: String
+        let text = "Рейтинг этого фильма больше чем 6?"
         let correctAnswer: Bool
     }
 
@@ -30,25 +29,25 @@ final class MovieQuizViewController: UIViewController {
     
     private let questions: [QuizQuestion] = [
         QuizQuestion(
-            image: "The Godfather", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
+            image: "The Godfather", correctAnswer: true),
         QuizQuestion(
-        image: "The Dark Knight", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
+        image: "The Dark Knight", correctAnswer: true),
         QuizQuestion(
-        image: "Kill Bill", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
+        image: "Kill Bill", correctAnswer: true),
         QuizQuestion(
-        image: "The Avengers", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
+        image: "The Avengers", correctAnswer: true),
         QuizQuestion(
-        image: "Deadpool", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
+        image: "Deadpool", correctAnswer: true),
         QuizQuestion(
-        image: "The Green Knight", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
+        image: "The Green Knight", correctAnswer: true),
         QuizQuestion(
-        image: "Old", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
+        image: "Old", correctAnswer: false),
         QuizQuestion(
-        image: "The Ice Age Adventures of Buck Wild", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
+        image: "The Ice Age Adventures of Buck Wild", correctAnswer: false),
         QuizQuestion(
-        image: "Tesla", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
+        image: "Tesla", correctAnswer: false),
         QuizQuestion(
-        image: "Vivarium", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
+        image: "Vivarium", correctAnswer: false),
     ]
     
     private var currentQuestionIndex = 0
@@ -61,12 +60,6 @@ final class MovieQuizViewController: UIViewController {
         let currentQuestion = questions[currentQuestionIndex]
         let convertedQuestion = convertQuestionToView(model: currentQuestion)
         showQuizStep(quiz: convertedQuestion)
-    }
-    
-    private func resetGame() {
-        currentQuestionIndex = 0
-        correctAnswers = 0
-        viewDidLoad()
     }
     
     private func convertQuestionToView(model: QuizQuestion) -> QuizStepViewModel {
@@ -86,6 +79,8 @@ final class MovieQuizViewController: UIViewController {
         if isCorrect {
             correctAnswers += 1
         }
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -116,6 +111,9 @@ final class MovieQuizViewController: UIViewController {
             let convertedQuestion = convertQuestionToView(model: currentQuestion)
             
             showQuizStep(quiz: convertedQuestion)
+            
+            yesButton.isEnabled = true
+            noButton.isEnabled = true
         }
     }
     
@@ -135,6 +133,9 @@ final class MovieQuizViewController: UIViewController {
             let convertedFirstQuestion = self.convertQuestionToView(model: firstQuestion)
                 
             self.showQuizStep(quiz: convertedFirstQuestion)
+            
+            self.yesButton.isEnabled = true
+            self.noButton.isEnabled = true
         }
         alert.addAction(action)
         
