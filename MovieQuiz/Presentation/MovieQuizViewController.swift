@@ -124,7 +124,7 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 
                 self.currentQuestionIndex = 0
                 self.correctAnswers = 0
-                
+    
                 self.questionFactory?.requestNextQuestion()
 //                if let firstQuestion = self.questionFactory.requestNextQuestion() {
 //                    self.currentQuestion = firstQuestion
