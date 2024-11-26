@@ -1,6 +1,6 @@
 import UIKit
 
-class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
     
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
@@ -15,6 +15,7 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
+    private var alertPresenter: AlertPresenter?
     
     // MARK: - Lifecycle
     
@@ -25,11 +26,9 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory.delegate = self
         self.questionFactory = questionFactory
         
-//        if let firstQuestion = questionFactory.requestNextQuestion() {
-//            currentQuestion = firstQuestion
-//            let viewModel = convertQuestionToView(model: firstQuestion)
-//            showQuizStep(quiz: viewModel)
-//        }
+        alertPresenter = AlertPresenter(viewController: self)
+        alertPresenter?.delegate = self
+        
         questionFactory.requestNextQuestion()
     }
     
@@ -44,6 +43,16 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.showQuizStep(quiz: viewModel)
         }
+    }
+    
+    // MARK: - AlertPresenterDelegate
+    func didDismissAlert() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
+                
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
     }
     
     // MARK: - Private functions
@@ -89,20 +98,22 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.borderWidth = 0
         
         if currentQuestionIndex == questionsAmount - 1 {
-            let results = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
-                text: "Ваш результат \(correctAnswers)/\(questionsAmount)",
-                buttonText: "Сыграть еще раз")
-            showResultsAlert(quiz: results)
+            let alertModel = AlertModel(
+                message: "Ваш результат \(correctAnswers)/\(questionsAmount)",
+                completion: { [weak self] in
+                    self?.didDismissAlert()
+                }
+            )
+            alertPresenter?.showAlert(model: alertModel)
+//            let results = QuizResultsViewModel(
+//                title: "Этот раунд окончен!",
+//                text: "Ваш результат \(correctAnswers)/\(questionsAmount)",
+//                buttonText: "Сыграть еще раз")
+//            
+//            showResultsAlert(quiz: results)
         } else {
             currentQuestionIndex += 1
             
-//            if let nextQuestion = questionFactory.requestNextQuestion() {
-//                currentQuestion = nextQuestion
-//                let viewModel = convertQuestionToView(model: nextQuestion)
-//                
-//                showQuizStep(quiz: viewModel)
-//            }
             questionFactory?.requestNextQuestion()
             
             yesButton.isEnabled = true
@@ -110,36 +121,30 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    private func showResultsAlert(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert)
-        
-        let action = UIAlertAction(
-            title: result.buttonText,
-            style: .default) { [weak self ] _ in
-                
-                guard let self = self else {return}
-                
-                self.currentQuestionIndex = 0
-                self.correctAnswers = 0
-    
-                self.questionFactory?.requestNextQuestion()
-//                if let firstQuestion = self.questionFactory.requestNextQuestion() {
-//                    self.currentQuestion = firstQuestion
-//                    let viewModel = self.convertQuestionToView(model: firstQuestion)
-//
-//                    self.showQuizStep(quiz: viewModel)
-//                }
-                
-                self.yesButton.isEnabled = true
-                self.noButton.isEnabled = true
-        }
-        alert.addAction(action)
-        
-        self.present(alert, animated: true, completion: nil)
-    }
+//    private func showResultsAlert(quiz result: QuizResultsViewModel) {
+//        let alert = UIAlertController(
+//            title: result.title,
+//            message: result.text,
+//            preferredStyle: .alert)
+//        
+//        let action = UIAlertAction(
+//            title: result.buttonText,
+//            style: .default) { [weak self ] _ in
+//                
+//                guard let self = self else {return}
+//                
+//                self.currentQuestionIndex = 0
+//                self.correctAnswers = 0
+//    
+//                self.questionFactory?.requestNextQuestion()
+//                
+//                self.yesButton.isEnabled = true
+//                self.noButton.isEnabled = true
+//        }
+//        alert.addAction(action)
+//        
+//        self.present(alert, animated: true, completion: nil)
+//    }
     
     // MARK: - Actions
     
