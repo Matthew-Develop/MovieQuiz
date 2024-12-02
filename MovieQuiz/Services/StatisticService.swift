@@ -38,9 +38,9 @@ final class StatisticService: StatisticServiceProtocol {
     
     private var totalQuestions: Int {
         get {
-            UserDefaults.standard.integer(forKey: Keys.totalQuestions.rawValue)
+            storage.integer(forKey: Keys.totalQuestions.rawValue)
         } set {
-            UserDefaults.standard.set(newValue, forKey: Keys.totalQuestions.rawValue)
+            storage.set(newValue, forKey: Keys.totalQuestions.rawValue)
         }
     }
 
