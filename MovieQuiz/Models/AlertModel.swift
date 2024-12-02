@@ -11,6 +11,7 @@ struct AlertModel {
     var title: String = "Этот раунд окончен!"
     var message: String
     var buttonText: String = "Сыграть еще раз"
-    var completion: () -> Void
+    var resetButtonText: String = "Сбросить статистику"
+//    var completion: () -> Void
 }
 
