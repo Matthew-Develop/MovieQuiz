@@ -1,6 +1,8 @@
 import UIKit
 
-class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+final class MovieQuizViewController: UIViewController,
+                                     QuestionFactoryDelegate,
+                                     AlertPresenterDelegate {
     
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
@@ -51,8 +53,7 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertP
         correctAnswers = 0
         questionFactory.requestNextQuestion()
                 
-        yesButton.isEnabled = true
-        noButton.isEnabled = true
+        changeStateButton(isEnabled: true)
     }
     
     // MARK: - Private functions
@@ -76,8 +77,7 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertP
         } else {
             UINotificationFeedbackGenerator().notificationOccurred(.error)
         }
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
+        changeStateButton(isEnabled: false)
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -108,7 +108,6 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertP
                 message: """
                         Ваш результат \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
                         """
-//                completion: { }
             )
             alertPresenter?.showAlert(model: alertModel)
         } else {
@@ -116,10 +115,15 @@ class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertP
             
             questionFactory.requestNextQuestion()
             
-            yesButton.isEnabled = true
-            noButton.isEnabled = true
+            changeStateButton(isEnabled: true)
         }
     }
+    
+    private func changeStateButton(isEnabled: Bool){
+        yesButton.isEnabled = isEnabled
+        noButton.isEnabled = isEnabled
+    }
+    
     // MARK: - Actions
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else {return}

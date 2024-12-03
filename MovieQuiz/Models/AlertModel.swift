@@ -8,10 +8,9 @@
 import UIKit
 
 struct AlertModel {
-    var title: String = "Этот раунд окончен!"
-    var message: String
-    var buttonText: String = "Сыграть еще раз"
-    var resetButtonText: String = "Сбросить статистику"
-//    var completion: () -> Void
+    let title: String = "Этот раунд окончен!"
+    let message: String
+    let buttonText: String = "Сыграть еще раз"
+    let resetButtonText: String = "Сбросить статистику"
 }
 

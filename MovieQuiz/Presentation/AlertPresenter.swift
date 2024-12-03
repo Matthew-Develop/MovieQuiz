@@ -10,7 +10,7 @@ import UIKit
 final class AlertPresenter {
     weak var delegate: AlertPresenterDelegate?
     
-    private var statisticService: StatisticServiceProtocol = StatisticService()
+    private let statisticService: StatisticServiceProtocol = StatisticService()
     
     private weak var viewController: UIViewController?
     
@@ -27,7 +27,6 @@ final class AlertPresenter {
         let action = UIAlertAction(
             title: model.buttonText,
             style: .default) { [weak self] _ in
-//                model.completion()
                 self?.delegate?.didDismissAlert()
             }
         

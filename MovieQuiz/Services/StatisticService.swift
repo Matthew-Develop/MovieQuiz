@@ -23,7 +23,8 @@ final class StatisticService: StatisticServiceProtocol {
     var gamesCount: Int {
         get {
             storage.integer(forKey: Keys.gamesCount.rawValue)
-        } set {
+        }
+        set {
             storage.setValue(newValue, forKey: Keys.gamesCount.rawValue)
         }
     }
@@ -31,7 +32,8 @@ final class StatisticService: StatisticServiceProtocol {
     private var totalCorrectAnswers: Int {
         get {
             storage.integer(forKey: Keys.totalCorrectAnswers.rawValue)
-        } set {
+        }
+        set {
             storage.set(newValue, forKey: Keys.totalCorrectAnswers.rawValue)
         }
     }
@@ -39,7 +41,8 @@ final class StatisticService: StatisticServiceProtocol {
     private var totalQuestions: Int {
         get {
             storage.integer(forKey: Keys.totalQuestions.rawValue)
-        } set {
+        }
+        set {
             storage.set(newValue, forKey: Keys.totalQuestions.rawValue)
         }
     }
@@ -48,18 +51,10 @@ final class StatisticService: StatisticServiceProtocol {
         get {
             let correct = storage.integer(forKey: Keys.bestGameCorrect.rawValue)
             let total = storage.integer(forKey: Keys.bestGameTotal.rawValue)
-            if let date = storage.object(forKey: Keys.bestGameDate.rawValue) as? Date {
-                return GameResult(
-                    correct: correct,
-                    total: total,
-                    date: date)
-            } else {
-                return GameResult(
-                    correct: correct,
-                    total: total,
-                    date: Date())
-            }
-        } set {
+            let date = storage.object(forKey: Keys.bestGameDate.rawValue) as? Date ?? Date()
+            return GameResult( correct: correct, total: total, date: date)
+        }
+        set {
             storage.set(newValue.correct, forKey: Keys.bestGameCorrect.rawValue)
             storage.set(newValue.total, forKey: Keys.bestGameTotal.rawValue)
             storage.set(newValue.date, forKey: Keys.bestGameDate.rawValue)
