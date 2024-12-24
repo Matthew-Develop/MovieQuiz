@@ -110,17 +110,18 @@
                                 </subviews>
                             </stackView>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="26f-JO-Rhn">
-                                <rect key="frame" x="210" y="468" width="20" height="20"/>
+                                <rect key="frame" x="210" y="75" width="20" height="20"/>
+                                <color key="color" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
-                            <constraint firstItem="26f-JO-Rhn" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="6GA-e2-fy6"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Iv0-cG-szV" secondAttribute="trailing" constant="20" id="6U2-70-i1H"/>
                             <constraint firstItem="Iv0-cG-szV" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="Tdg-Sq-rii"/>
-                            <constraint firstItem="26f-JO-Rhn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Zaf-eI-m7H"/>
+                            <constraint firstItem="26f-JO-Rhn" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="75" id="fgz-OK-hSH"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Iv0-cG-szV" secondAttribute="bottom" id="klV-Yd-DhT"/>
+                            <constraint firstItem="26f-JO-Rhn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="n3g-OB-nX0"/>
                             <constraint firstItem="Iv0-cG-szV" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="qgR-62-ryV"/>
                         </constraints>
                     </view>
@@ -129,13 +130,14 @@
                         <outlet property="counterLabel" destination="d4X-6P-YEQ" id="05m-yf-DfI"/>
                         <outlet property="imageView" destination="MLY-4q-h2z" id="Uc7-zW-PCc"/>
                         <outlet property="noButton" destination="ud4-pr-L0W" id="by4-Id-glz"/>
+                        <outlet property="questionUIElementLabel" destination="Xvl-iP-psN" id="znM-gU-9uy"/>
                         <outlet property="textLabel" destination="A0O-QB-mfQ" id="TZL-qP-BF7"/>
                         <outlet property="yesButton" destination="CjY-DW-bF6" id="Lur-I2-tPT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-55.072463768115945" y="55.580357142857139"/>
+            <point key="canvasLocation" x="-55.909090909090914" y="55.230125523012553"/>
         </scene>
     </scenes>
     <resources>

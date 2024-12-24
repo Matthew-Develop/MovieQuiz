@@ -7,6 +7,7 @@ final class MovieQuizViewController: UIViewController,
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
+    @IBOutlet weak var questionUIElementLabel: UILabel!
     
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
@@ -26,6 +27,9 @@ final class MovieQuizViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
         textLabel.text = "Загрузка вопросов..."
+        activityIndicator.hidesWhenStopped = true
+        
+        changeIsHiddenUI(to: true)
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         
@@ -74,13 +78,19 @@ final class MovieQuizViewController: UIViewController,
     }
     
     // MARK: - Private functions
+    private func changeIsHiddenUI(to value: Bool) {
+        imageView.isHidden = value
+        counterLabel.isHidden = value
+        questionUIElementLabel.isHidden = value
+        yesButton.isHidden = value
+        noButton.isHidden = value
+    }
+    
     private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
     private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
@@ -106,6 +116,8 @@ final class MovieQuizViewController: UIViewController,
     }
     
     private func showQuizStep(quiz step: QuizStepViewModel) {
+        changeIsHiddenUI(to: false)
+        
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
@@ -133,9 +145,6 @@ final class MovieQuizViewController: UIViewController,
     }
     
     private func showNextQuestionOrResults() {
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 0
-        
         if currentQuestionIndex == questionsAmount - 1 {
             
             statisticService.store(game: GameResult(
@@ -157,6 +166,10 @@ final class MovieQuizViewController: UIViewController,
             
             questionFactory?.requestNextQuestion()
         }
+        
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 0
+        hideLoadingIndicator()
     }
     
     private func changeStateButton(isEnabled: Bool){
@@ -167,6 +180,7 @@ final class MovieQuizViewController: UIViewController,
     // MARK: - Actions
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         changeStateButton(isEnabled: false)
+        showLoadingIndicator()
         
         guard let currentQuestion = currentQuestion else {return}
         let givenAnswer = true
@@ -176,6 +190,7 @@ final class MovieQuizViewController: UIViewController,
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         changeStateButton(isEnabled: false)
+        showLoadingIndicator()
         
         guard let currentQuestion = currentQuestion else {return}
         let givenAnswer = false
