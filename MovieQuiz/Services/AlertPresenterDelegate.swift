@@ -9,4 +9,5 @@ import UIKit
 
 protocol AlertPresenterDelegate: AnyObject {
     func didDismissAlert()
+    func didTryLoadDataAgain()
 }
