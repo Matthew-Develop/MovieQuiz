@@ -8,6 +8,8 @@ final class MovieQuizViewController: UIViewController,
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
+    
     @IBOutlet private var yesButton: UIButton!
     @IBOutlet private var noButton: UIButton!
     
@@ -16,23 +18,21 @@ final class MovieQuizViewController: UIViewController,
     private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var questionFactory: QuestionFactory?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticServiceProtocol = StatisticService()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        textLabel.text = "Загрузка вопросов..."
         
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
-        self.questionFactory = questionFactory
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         
-        let alertPresenter = AlertPresenter(viewController: self)
-        alertPresenter.delegate = self
-        self.alertPresenter = alertPresenter
+        alertPresenter = AlertPresenter(viewController: self)
         
-        questionFactory.requestNextQuestion()
+        showLoadingIndicator()
+        questionFactory?.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -45,21 +45,62 @@ final class MovieQuizViewController: UIViewController,
         DispatchQueue.main.async { [weak self] in
             self?.showQuizStep(quiz: viewModel)
         }
+        
+        changeStateButton(isEnabled: true)
+    }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
     }
     
     // MARK: - AlertPresenterDelegate
     func didDismissAlert() {
         currentQuestionIndex = 0
         correctAnswers = 0
-        questionFactory.requestNextQuestion()
-                
+        
+        questionFactory?.requestNextQuestion()
+        
         changeStateButton(isEnabled: true)
     }
     
+    func didTryLoadDataAgain() {
+        showLoadingIndicator()
+        questionFactory?.loadData()
+    }
+    
     // MARK: - Private functions
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModelError(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать ещё раз"
+        ) { [weak self] in
+            self?.didTryLoadDataAgain()
+        }
+        
+        alertPresenter?.showAlertNetworkError(model: model)
+    }
+    
     private func convertQuestionToView(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
@@ -77,7 +118,6 @@ final class MovieQuizViewController: UIViewController,
         } else {
             UINotificationFeedbackGenerator().notificationOccurred(.error)
         }
-        changeStateButton(isEnabled: false)
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -86,7 +126,7 @@ final class MovieQuizViewController: UIViewController,
         let colorBorder = isCorrect == true ? UIColor.yGreen : UIColor.yRed
         imageView.layer.borderColor = colorBorder.cgColor
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1 ) { [weak self] in
             guard let self = self else { return }
             self.showNextQuestionOrResults()
             }
@@ -104,18 +144,18 @@ final class MovieQuizViewController: UIViewController,
                 date: Date())
             )
             
-            let alertModel = AlertModel(
+            let model = AlertModel(
                 message: """
                         Ваш результат \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
                         """
-            )
-            alertPresenter?.showAlert(model: alertModel)
+            ) { [weak self] in
+                self?.didDismissAlert()
+            }
+            alertPresenter?.showAlertResults(model: model)
         } else {
             currentQuestionIndex += 1
             
-            questionFactory.requestNextQuestion()
-            
-            changeStateButton(isEnabled: true)
+            questionFactory?.requestNextQuestion()
         }
     }
     
@@ -126,6 +166,8 @@ final class MovieQuizViewController: UIViewController,
     
     // MARK: - Actions
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        changeStateButton(isEnabled: false)
+        
         guard let currentQuestion = currentQuestion else {return}
         let givenAnswer = true
         
@@ -133,6 +175,8 @@ final class MovieQuizViewController: UIViewController,
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
+        changeStateButton(isEnabled: false)
+        
         guard let currentQuestion = currentQuestion else {return}
         let givenAnswer = false
         

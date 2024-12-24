@@ -18,7 +18,7 @@ final class AlertPresenter {
         self.viewController = viewController
     }
     
-    func showAlert(model: AlertModel) {
+    func showAlertResults(model: AlertModel) {
         let alert = UIAlertController(
             title: model.title,
             message: model.message,
@@ -26,19 +26,33 @@ final class AlertPresenter {
   
         let action = UIAlertAction(
             title: model.buttonText,
-            style: .default) { [weak self] _ in
-                self?.delegate?.didDismissAlert()
+            style: .default) { _ in
+                model.completion()
             }
         
         let actionReset = UIAlertAction(
             title: model.resetButtonText,
-            style: .default ) { [weak self] _ in
+            style: .default ) { [weak self ] _ in
+                model.completion()
                 self?.statisticService.resetScore()
-                self?.delegate?.didDismissAlert()
             }
         
         alert.addAction(action)
         alert.addAction(actionReset)
+        viewController?.present(alert, animated: true, completion: nil)
+    }
+    
+    func showAlertNetworkError(model: AlertModelError) {
+        let alert = UIAlertController(
+            title: model.title,
+            message: model.message,
+            preferredStyle: .alert)
+        let action = UIAlertAction(
+            title: model.buttonText,
+            style: .default) { _ in
+                model.completion()
+            }
+        alert.addAction(action)
         viewController?.present(alert, animated: true, completion: nil)
     }
 }
