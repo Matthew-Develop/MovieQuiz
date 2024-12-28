@@ -53,6 +53,10 @@ final class MovieQuizViewController: UIViewController,
         changeStateButton(isEnabled: true)
     }
     
+    func didGetErrorMessageFromApi(with error: String) {
+        showApiError(message: error)
+    }
+    
     func didLoadDataFromServer() {
         hideLoadingIndicator()
         questionFactory?.requestNextQuestion()
@@ -60,6 +64,10 @@ final class MovieQuizViewController: UIViewController,
     
     func didFailToLoadData(with error: Error) {
         showNetworkError(message: error.localizedDescription)
+    }
+    
+    func didFailToLoadImage(with error: Error) {
+        showImageLoadError(message: error.localizedDescription)
     }
     
     // MARK: - AlertPresenterDelegate
@@ -94,6 +102,21 @@ final class MovieQuizViewController: UIViewController,
         activityIndicator.stopAnimating()
     }
     
+    private func showApiError(message: String) {
+        hideLoadingIndicator()
+        let errorMessage: String = message + "\nОбновите либо попробуйте позже"
+        
+        let model = AlertModelError(
+            title: "Ошибка сервера",
+            message: errorMessage,
+            buttonText: "Обновить"
+        ) { [weak self] in
+            self?.didTryLoadDataAgain()
+        }
+        
+        alertPresenter?.showAlertError(model: model)
+    }
+    
     private func showNetworkError(message: String) {
         hideLoadingIndicator()
         
@@ -105,7 +128,21 @@ final class MovieQuizViewController: UIViewController,
             self?.didTryLoadDataAgain()
         }
         
-        alertPresenter?.showAlertNetworkError(model: model)
+        alertPresenter?.showAlertError(model: model)
+    }
+    
+    private func showImageLoadError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModelError(
+            title: "Ошибка изображения",
+            message: message,
+            buttonText: "Начать заново"
+        ) { [weak self] in
+            self?.didDismissAlert()
+        }
+        
+        alertPresenter?.showAlertError(model: model)
     }
     
     private func convertQuestionToView(model: QuizQuestion) -> QuizStepViewModel {

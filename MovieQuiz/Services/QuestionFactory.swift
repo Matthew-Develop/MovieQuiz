@@ -49,8 +49,12 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 
                 switch result {
                 case .success(let data):
-                    self.movies = data.items
-                    self.delegate?.didLoadDataFromServer()
+                    if data.errorMessage.isEmpty == false {
+                        self.delegate?.didGetErrorMessageFromApi(with: data.errorMessage)
+                    } else {
+                        self.movies = data.items
+                        self.delegate?.didLoadDataFromServer()
+                    }
                 case .failure(let error):
                     self.delegate?.didFailToLoadData(with: error)
                 }
@@ -70,7 +74,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
             do {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
-                print("Failed to load Image")
+                self.delegate?.didFailToLoadImage(with: error)
             }
             
             let rating = movie.rating

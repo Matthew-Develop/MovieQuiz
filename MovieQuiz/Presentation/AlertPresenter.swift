@@ -42,7 +42,7 @@ final class AlertPresenter {
         viewController?.present(alert, animated: true, completion: nil)
     }
     
-    func showAlertNetworkError(model: AlertModelError) {
+    func showAlertError(model: AlertModelError) {
         let alert = UIAlertController(
             title: model.title,
             message: model.message,
