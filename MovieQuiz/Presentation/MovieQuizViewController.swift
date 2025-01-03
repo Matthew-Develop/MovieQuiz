@@ -14,11 +14,12 @@ final class MovieQuizViewController: UIViewController,
     @IBOutlet private var yesButton: UIButton!
     @IBOutlet private var noButton: UIButton!
     
-    private var currentQuestionIndex: Int = 0
+//    private var currentQuestionIndex: Int = 0
     private var correctAnswers: Int = 0
-    private let questionsAmount: Int = 10
+//    private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     
+    private let presenter = MovieQuizPresenter()
     private var questionFactory: QuestionFactory?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticServiceProtocol = StatisticService()
@@ -44,7 +45,7 @@ final class MovieQuizViewController: UIViewController,
         guard let question = question else { return }
         
         currentQuestion = question
-        let viewModel = convertQuestionToView(model: question)
+        let viewModel = presenter.convertQuestionToView(model: question)
 
         DispatchQueue.main.async { [weak self] in
             self?.showQuizStep(quiz: viewModel)
@@ -72,7 +73,8 @@ final class MovieQuizViewController: UIViewController,
     
     // MARK: - AlertPresenterDelegate
     func didDismissAlert() {
-        currentQuestionIndex = 0
+        presenter.resetQuestionIndex()
+//        currentQuestionIndex = 0
         correctAnswers = 0
         
         questionFactory?.requestNextQuestion()
@@ -145,12 +147,12 @@ final class MovieQuizViewController: UIViewController,
         alertPresenter?.showAlertError(model: model)
     }
     
-    private func convertQuestionToView(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-    }
+//    private func convertQuestionToView(model: QuizQuestion) -> QuizStepViewModel {
+//        return QuizStepViewModel(
+//            image: UIImage(data: model.image) ?? UIImage(),
+//            question: model.text,
+//            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+//    }
     
     private func showQuizStep(quiz step: QuizStepViewModel) {
         changeIsHiddenUI(to: false)
@@ -182,24 +184,26 @@ final class MovieQuizViewController: UIViewController,
     }
     
     private func showNextQuestionOrResults() {
-        if currentQuestionIndex == questionsAmount - 1 {
+//        currentQuestionIndex == questionsAmount - 1
+        if presenter.isLastQuestion() {
             
             statisticService.store(game: GameResult(
                 correct: correctAnswers,
-                total: questionsAmount,
+                total: presenter.questionsAmount,
                 date: Date())
             )
             
             let model = AlertModel(
                 message: """
-                        Ваш результат \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+                        Ваш результат \(correctAnswers)/\(presenter.questionsAmount)\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
                         """
             ) { [weak self] in
                 self?.didDismissAlert()
             }
             alertPresenter?.showAlertResults(model: model)
         } else {
-            currentQuestionIndex += 1
+            presenter.switchToNextQuestion()
+            //            currentQuestionIndex += 1
             
             questionFactory?.requestNextQuestion()
         }
